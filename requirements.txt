@@ -1,0 +1,4 @@
+ormx
+gunicorn
+Flask
+cloudinary
