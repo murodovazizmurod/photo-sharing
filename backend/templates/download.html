@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <div class="container">
+          <h1>Download File</h1><br>
+          <p>Someone shared with you the file listed below. Click on the <span style="color: lightgreen;">"Download"</span> button to start downloading it.</p><br>
+          <img src="{{ image.url }}" style="max-width: 100%; max-height: 200px;">
+          <div class="file">
+                  <img src="/static/assets/img/file_icon.svg">
+                  <div>
+                    <p>Hash: <b>{{image.public}}</b></p>
+                    <p>Size:  {{ image.size }} bytes </p>
+                    <p>Created:  {{ image.created.strftime('%H:%M %d/%m/%Y') }} </p>
+                    <p>Size: {{ image.width }}x{{ image.height }}</p>
+                  </div>
+                </div>  
+                <a class="btn" href="{{ image.url }}">Download</a>
+
+    </div>
+{% endblock %}
