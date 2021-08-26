@@ -1,19 +1,21 @@
-from datetime import datetime
 import os
 import imghdr
 import cloudinary
-import cloudinary.uploader as uploader
+from datetime import datetime
+from cloudinary import uploader
+from flask.helpers import url_for
 
 
-from flask import Flask, render_template, request, abort, redirect, jsonify
 from ormx import Database
 from ormx.models import Column, Table
 from werkzeug.utils import secure_filename
+from flask import Flask, render_template, request, abort, redirect, jsonify
 
 app = Flask(__name__)
 db = Database('files.db')
 
 # Models
+
 
 class Image(Table):
     __tablename__ = 'images'
@@ -24,12 +26,13 @@ class Image(Table):
     url = Column(str)
     created = Column(datetime)
 
+
 db.create(Image)
 
-cloudinary.config( 
-  cloud_name = "duhmrouek", 
-  api_key = "743114969696173", 
-  api_secret = "irG5H-xkyaowaaPUuPLaWU1C7ZU" 
+cloudinary.config(
+    cloud_name="duhmrouek",
+    api_key="743114969696173",
+    api_secret="irG5H-xkyaowaaPUuPLaWU1C7ZU"
 )
 
 app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
@@ -37,14 +40,14 @@ app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
 
 def validate_image(stream):
     header = stream.read(512)
-    stream.seek(0) 
+    stream.seek(0)
     format = imghdr.what(None, header)
     if not format:
         return None
     return '.' + (format if format != 'jpeg' else 'jpg')
 
 
-@app.route('/', methods = ['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         uploaded_file = request.files['file']
@@ -61,22 +64,25 @@ def index():
                       height=u['height'],
                       url=u['url'],
                       created=datetime.now())
+        print(u)
         db.save(image)
-        return redirect('/'+image.public)
+        return redirect(url_for('image_view', id=image.public))
     return render_template('index.html', images=db['images'])
 
 
 @app.route('/<id>')
-def upload(id):
+def image_view(id):
     image = db.get(Image, public=id)
     if not image:
         abort(404)
     return render_template('download.html', image=image)
 
+
 @app.route('/all')
 def all():
     images = db['images']
     return jsonify(images)
+
 
 @app.errorhandler(404)
 def error404(e):
