@@ -5,7 +5,7 @@ import cloudinary
 import cloudinary.uploader as uploader
 
 
-from flask import Flask, render_template, request, abort, redirect
+from flask import Flask, render_template, request, abort, redirect, jsonify
 from ormx import Database
 from ormx.models import Column, Table
 from werkzeug.utils import secure_filename
@@ -73,6 +73,10 @@ def upload(id):
         abort(404)
     return render_template('download.html', image=image)
 
+@app.route('/all')
+def all():
+    images = db['images']
+    return jsonify(images)
 
 @app.errorhandler(404)
 def error404(e):
